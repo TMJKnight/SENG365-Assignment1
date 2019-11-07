@@ -1,0 +1,1002 @@
+openapi: 3.0.0
+info:
+  title: "SENG365 2019: Travel Site API"
+  version: 1.0.0
+  description: "This specification documents the API that must be implemented for Assignment One. \n\nThe API provides all of the server-side functionality necessary in order to implement the user stories for Assignment Two."
+servers:
+  - url: http://csse-s365.canterbury.ac.nz:4001/api/v1
+    description: reference server
+
+
+tags:
+  - name: venues
+    description: Endpoints for retrieving, creating and modifying venues.
+    
+  - name: venues.photos
+    description: Endpoints for retrieving, uploading and deleting venue photos.
+    
+  - name: reviews
+    description: Endpoints for retrieving and posting reviews.
+    
+  - name: users
+    description: Endpoints for registering, logging in, and retrieving/modifying user information.
+    
+  - name: users.photos
+    description: Endpoints for retrieving, uploading and deleting user profile photos.
+
+  - name: backdoor
+    description: Development-only endpoints for resetting/resampling the database.
+
+
+paths:
+  ### Venues ###
+  /venues:
+    get:
+      tags:
+        - venues
+      summary: View venues.
+      description: The `distance` field (from the user\'s location to the venue) is only included in the results when `myLatitude` and `myLongitude` parameters are provided.
+      parameters:
+        - in: query
+          name: startIndex
+          description: Number of items to skip before returning results.
+          schema:
+            $ref: '#/components/schemas/VenueSearchRequest/properties/startIndex'
+        - in: query
+          name: count
+          description: Number of items to include in results.
+          schema:
+            $ref: '#/components/schemas/VenueSearchRequest/properties/count'
+        - in: query
+          name: city
+          description: Only include Venues that are in this city.
+          schema:
+            $ref: '#/components/schemas/VenueSearchRequest/properties/city'
+        - in: query
+          name: q
+          description: Only include Venues that have the search term within their title.
+          schema:
+            $ref: '#/components/schemas/VenueSearchRequest/properties/q'
+        - in: query
+          name: categoryId
+          description: Only include Venues of this category (id).
+          schema:
+            $ref: '#/components/schemas/VenueSearchRequest/properties/categoryId'
+        - in: query
+          name: minStarRating
+          description: Only include Venues that have an average (mean) star rating >= minStarRating.
+          schema:
+            $ref: '#/components/schemas/VenueSearchRequest/properties/minStarRating'
+        - in: query
+          name: maxCostRating
+          description: Only include Venues that have an average (mode) cost rating <= maxCostRating.
+          schema:
+            $ref: '#/components/schemas/VenueSearchRequest/properties/maxCostRating'
+        - in: query
+          name: adminId
+          description: Only include Venues that have the given user (id) as their admin.
+          schema:
+            $ref: '#/components/schemas/VenueSearchRequest/properties/adminId'
+        - in: query
+          name: sortBy
+          description: Sort the Venues by the given property. If sorting by DISTANCE, `myLatitude` and `myLongitude` must be supplied. Default is STAR_RATING.
+          schema:
+            $ref: '#/components/schemas/VenueSearchRequest/properties/sortBy'
+        - in: query
+          name: reverseSort
+          description: Sort the Venues in reverse-order. Default is false.
+          schema:
+            $ref: '#/components/schemas/VenueSearchRequest/properties/reverseSort'
+        - in: query
+          name: myLatitude
+          description: The user's latitude, used for calculating the closest venues. Must be accompanied by longitude.
+          schema:
+            $ref: '#/components/schemas/VenueSearchRequest/properties/myLatitude'
+        - in: query
+          name: myLongitude
+          description: The user's longitude, used for calculating the closest venues. Must be accompanied by latitude.
+          schema:
+            $ref: '#/components/schemas/VenueSearchRequest/properties/myLatitude'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VenueOverview'
+        400:
+          description: Bad Request
+    post:
+      tags:
+        - venues
+      summary: Add a new venue.
+      security:
+        - UserToken: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              title: CreateVenueRequest
+              properties:
+                venueName:
+                  $ref: '#/components/schemas/Venue/properties/venueName'
+                categoryId:
+                  $ref: '#/components/schemas/VenueCategory/properties/categoryId'
+                city:
+                  $ref: '#/components/schemas/Venue/properties/city'
+                shortDescription:
+                  $ref: '#/components/schemas/Venue/properties/shortDescription'
+                longDescription:
+                  $ref: '#/components/schemas/Venue/properties/longDescription'
+                address:
+                  $ref: '#/components/schemas/Venue/properties/address'
+                latitude:
+                  $ref: '#/components/schemas/Venue/properties/latitude'
+                longitude:
+                  $ref: '#/components/schemas/Venue/properties/longitude'
+              required:
+                - venueName
+                - categoryId
+                - city
+                - shortDescription
+                - longDescription
+                - address
+                - latitude
+                - longitude
+      responses:
+        201:
+          description: Created
+          content:
+            application/json:
+              schema:
+                properties:
+                  venueId:
+                    $ref: '#/components/schemas/VenueOverview/properties/venueId'
+        400:
+          description: Bad Request
+        401:
+          description: Unauthorized
+        403:
+          description: Forbidden
+  
+  /venues/{id}:
+    parameters:
+      - name: id
+        description: ID of the venue to retrieve.
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/VenueOverview/properties/venueId'
+    get:
+      tags:
+        - venues
+      summary: Retrieve detailed information about a venue.
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Venue'
+        404:
+          description: Not Found
+    patch:
+      tags:
+        - venues
+      summary: Change a venue's details.
+      description: Only accessible for the administrator of the venue.
+      security:
+        - UserToken: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              title: ChangeVenueDetailsRequest
+              properties:
+                venueName:
+                  $ref: '#/components/schemas/Venue/properties/venueName'
+                categoryId:
+                  $ref: '#/components/schemas/VenueCategory/properties/categoryId'
+                city:
+                  $ref: '#/components/schemas/Venue/properties/city'
+                shortDescription:
+                  $ref: '#/components/schemas/Venue/properties/shortDescription'
+                longDescription:
+                  $ref: '#/components/schemas/Venue/properties/longDescription'
+                address:
+                  $ref: '#/components/schemas/Venue/properties/address'
+                latitude:
+                  $ref: '#/components/schemas/Venue/properties/latitude'
+                longitude:
+                  $ref: '#/components/schemas/Venue/properties/longitude'
+      responses:
+        200:
+          description: OK
+        400:
+          description: Bad Request
+        401:
+          description: Unauthorized
+        403:
+          description: Forbidden
+        404:
+          description: Not Found
+          
+  /categories:
+    get:
+      tags:
+        - venues
+      summary: Retrieves all data about venue categories.
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VenueCategory'
+                  
+  /venues/{id}/photos:
+    parameters:
+      - name: id
+        description: ID of the venue to retrieve.
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/VenueOverview/properties/venueId'
+    post:
+      tags:
+        - venues.photos
+      summary: Add a photo to a venue.
+      description: If makePrimary is `true`, then this photo should become the new primary photo for this venue. Therefore, any other photo that previously had `isPrimary=true` should then have `isPrimary=false`. If there is no existing primary photo for this venue, makePrimary is considered to be `true`. 
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                photo:
+                  $ref: '#/components/schemas/BinaryImageFile'
+                description:
+                  $ref: '#/components/schemas/VenuePhoto/properties/photoDescription'
+                makePrimary:
+                  $ref: '#/components/schemas/VenuePhoto/properties/isPrimary'
+        required: true
+      responses:
+        201:
+          description: Created
+        400:
+          description: Bad Request
+        401:
+          description: Unauthorized
+        403:
+          description: Forbidden
+        404:
+          description: Not Found
+          
+  /venues/{id}/photos/{photoFilename}:
+    parameters:
+      - name: id
+        description: ID of the venue to retrieve.
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/VenueOverview/properties/venueId'
+      - name: photoFilename
+        description: Filename of the photo to retrieve for this venue.
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/VenuePhoto/properties/photoFilename'
+    get:
+      tags:
+        - venues.photos
+      summary: Retrieve a given photo for a venue.
+      description: The response MIME type will be either `image/png` or `image/jpeg`, depending on the file type of the image being retrieved.
+      responses:
+        200:
+          description: OK
+          content:
+            image:
+              schema:
+                $ref: '#/components/schemas/BinaryImageFile'
+        404:
+          description: Not Found
+    delete:
+      tags:
+        - venues.photos
+      summary: Delete a venue's photo.
+      description: If the venue's **primary** photo is deleted, then one of its remaining photos should be randomly selected to become the new primary photo. This is irrelevant if this is the venue\'s only photo. 
+      responses:
+        200:
+          description: OK
+        401:
+          description: Unauthorized
+        403:
+          description: Forbidden
+        404:
+          description: Not Found
+  
+  /venues/{id}/photos/{photoFilename}/setPrimary:
+    parameters:
+      - name: id
+        description: ID of the venue to retrieve.
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/VenueOverview/properties/venueId'
+      - name: photoFilename
+        description: Filename of the photo to retrieve for this venue.
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/VenuePhoto/properties/photoFilename'
+    post:
+      tags:
+        - venues.photos
+      summary: Set a photo as the primary one for this venue.
+      description: This sets `isPrimary = 0` for all other photos of this venue.
+      responses:
+        200:
+          description: OK
+        401:
+          description: Unauthorized
+        403:
+          description: Forbidden
+        404:
+          description: Not Found
+
+  ### Reviews ###
+  /venues/{id}/reviews:
+    parameters:
+    - name: id
+      description: ID of the venue to retrieve.
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/VenueOverview/properties/venueId'
+    get:
+      tags:
+        - reviews
+      summary: Retrieves a venue's reviews.
+      description: The reviews are returned in reverse chronological order (i.e. most recent first).
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Review'
+        404:
+          description: Not Found
+    post:
+      tags:
+        - reviews
+      summary: Post a review for a venue.
+      description: A user cannot review a venue they're admin of, nor a venue they have previously reviewed.
+      security:
+        - UserToken: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              title: PostReviewRequest
+              properties:
+                reviewBody:
+                  $ref: '#/components/schemas/Review/properties/reviewBody'
+                starRating:
+                  $ref: '#/components/schemas/Review/properties/starRating'
+                costRating:
+                  $ref: '#/components/schemas/Review/properties/costRating'
+      responses:
+        201:
+          description: Created
+        400:
+          description: Bad Request
+        401:
+          description: Unauthorized
+        403:
+          description: Forbidden
+  
+  /users/{id}/reviews:
+    parameters:
+      - name: id
+        description: ID of the user to retrieve.
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/FullUser/properties/userId'
+    get:
+      tags:
+        - reviews
+      summary: Retrieves all the reviews authored by a given user.
+      description: Each review is returned with a brief overview of the venue it is for.
+      security:
+        - UserToken: []
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReviewWithVenue'
+        404:
+          description: Not Found
+
+  ### Users ###
+  /users:
+    post:
+      tags:
+        - users
+      summary: Register as a new user.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              title: RegisterUserRequest
+              properties:
+                username:
+                  $ref: '#/components/schemas/User/properties/username'
+                email:
+                  $ref: '#/components/schemas/User/properties/email'
+                givenName:
+                  $ref: '#/components/schemas/User/properties/givenName'
+                familyName:
+                  $ref: '#/components/schemas/User/properties/familyName'
+                password:
+                  $ref: '#/components/schemas/FullUser/properties/password'
+              required:
+                - username
+                - email
+                - givenName
+                - familyName
+                - password
+      responses:
+        201:
+          description: Created
+          content:
+            application/json:
+              schema:
+                properties:
+                  userId:
+                    $ref: '#/components/schemas/FullUser/properties/userId'
+        400:
+          description: Bad Request
+  
+  /users/login:
+    post:
+      tags:
+        - users
+      summary: Login as an existing user.
+      description: Either username or email may be used, but one of them must be provided (in addition to a password).
+      requestBody:
+        content:
+          application/json:
+            schema:
+              title: LoginRequest
+              properties:
+                username:
+                  $ref: '#/components/schemas/User/properties/username'
+                email: 
+                  $ref: '#/components/schemas/User/properties/email'
+                password: 
+                  $ref: '#/components/schemas/FullUser/properties/password'
+              required:
+                - password
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                title: LoginSuccessResponse
+                properties:
+                  userId:
+                    $ref: '#/components/schemas/FullUser/properties/userId'
+                  token:
+                    $ref: '#/components/schemas/FullUser/properties/userToken'
+        400:
+          description: Bad Request
+          
+  /users/logout:
+    post:
+      tags:
+        - users
+      summary: Logs out the currently authorised user.
+      security:
+        - UserToken: []
+      responses:
+        200:
+          description: OK
+        401:
+          description: Unauthorized
+          
+  /users/{id}:
+    parameters:
+      - name: id
+        description: ID of the user to retrieve.
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/FullUser/properties/userId'
+    get:
+      tags:
+        - users
+      summary: Retrieve information about a user.
+      description: The email field is only included when the currently authenticated user is viewing their **own** details. 
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        404:
+          description: Not Found
+    patch:
+      tags:
+        - users
+      summary: Change a user's details.
+      description: Only accessible for the user themselves. 
+      security:
+        - UserToken: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              title: ChangeUserDetailsRequest
+              properties:
+                givenName:
+                  $ref: '#/components/schemas/User/properties/givenName'
+                familyName:
+                  $ref: '#/components/schemas/User/properties/familyName'
+                password:
+                  $ref: '#/components/schemas/FullUser/properties/password'
+      responses:
+        200:
+          description: OK
+        400:
+          description: Bad Request
+        401:
+          description: Unauthorized
+        403:
+          description: Forbidden
+        404:
+          description: Not Found
+  
+  /users/{id}/photo:
+    parameters:
+      - name: id
+        description: ID of the user to retrieve.
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/FullUser/properties/userId'
+    get:
+      tags:
+        - users.photos
+      summary: Retrieve a user's profile photo.
+      description: The response MIME type will be either `image/png` or `image/jpeg`, depending on the file type of the image being retrieved.
+      responses:
+        200:
+          description: OK
+          content:
+            image:
+              schema:
+                $ref: '#/components/schemas/BinaryImageFile'
+        404:
+          description: Not Found
+    put:
+      tags:
+        - users.photos
+      summary: Set a user's profile photo.
+      description: Will replace the user's current profile photo if one already exists.
+      requestBody:
+        content:
+          image/png:
+            schema:
+              $ref: '#/components/schemas/BinaryImageFile'
+          image/jpeg:
+            schema:
+              $ref: '#/components/schemas/BinaryImageFile'
+        required: true
+      responses:
+        200:
+          description: OK
+        201:
+          description: Created
+        400:
+          description: Bad Request
+        401:
+          description: Unauthorized
+        403:
+          description: Forbidden
+        404:
+          description: Not Found
+    delete:
+      tags:
+        - users.photos
+      summary: Delete a user's profile photo.
+      responses:
+        200:
+          description: OK
+        401:
+          description: Unauthorized
+        403:
+          description: Forbidden
+        404:
+          description: Not Found
+
+  ### Backdoor ###
+  /reset:
+    post:
+      tags:
+        - backdoor
+      summary: Force reset of database to original structure.
+      responses:
+        200:
+          description: OK
+        500:
+          description: Internal Server Error
+  
+  /resample:
+    post:
+      tags:
+        - backdoor
+      summary: Reload sample of data into database.
+      responses:
+        201:
+          description: Created
+        500:
+          description: Internal Server Error
+  
+  /executeSql:
+    post:
+      tags:
+        - backdoor
+      summary: Execute any arbitrary SQL statement provided, and return the output from the database. 
+      description: This is an enormous security hole, and wouldn't be present in any real application. However, we're using it for testing purposes in this assignment. Take this as an example of what **NOT** to do!
+      requestBody:
+        content:
+          text/plain:
+            schema:
+              title: SqlCommand
+              type: string
+              example: SELECT * FROM Venue;
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/SqlResult'
+                  - $ref: '#/components/schemas/SqlResultSet'
+        500:
+          description: Internal Server Error
+
+
+components:
+  schemas:
+    User:
+      title: User
+      type: object
+      properties:
+        username:
+          type: string
+          minLength: 1
+          example: "adam111"
+        email:
+          type: string
+          minLength: 1
+          format: email
+          example: "adam111@uclive.ac.nz"
+        givenName:
+          type: string
+          minLength: 1
+          example: "Adam"
+        familyName:
+          type: string
+          minLength: 1
+          example: "Smitt"
+
+    FullUser:
+      title: FullUser
+      type: object
+      allOf: 
+        - $ref: '#/components/schemas/User'
+      properties:
+        userId:
+          type: integer
+          minimum: 0
+          example: "13"
+        password:
+          type: string
+          minLength: 1
+          format: password
+          example: "qwerty123"
+        userToken:
+          type: string
+          example: "JSkIEpXk0b2jLgDpRuKAjGwCbFnDM0Tj"
+          
+    Venue:
+      title: Venue
+      type: object
+      properties:
+        venueName:
+          type: string
+          minLength: 1
+        admin:
+          type: object
+          properties:
+            userId:
+              $ref: '#/components/schemas/FullUser/properties/userId'
+            username:
+              $ref: '#/components/schemas/User/properties/username'
+        category:
+          $ref: '#/components/schemas/VenueCategory'
+        city:
+          type: string
+          minLength: 1
+        shortDescription:
+          type: string
+        longDescription:
+          type: string
+        dateAdded:
+          $ref: '#/components/schemas/DateTime'
+        address:
+          type: string
+          minLength: 1
+        latitude:
+          $ref: '#/components/schemas/Latitude'
+        longitude:
+          $ref: '#/components/schemas/Longitude'
+        photos:
+          type: array
+          items:
+            $ref: '#/components/schemas/VenuePhoto'
+    
+    VenueOverview:
+      title: VenueOverview
+      type: object
+      properties:
+        venueId:
+          type: integer
+        venueName:
+          $ref: '#/components/schemas/Venue/properties/venueName'
+        categoryId:
+          $ref: '#/components/schemas/VenueCategory/properties/categoryId'
+        city:
+          $ref: '#/components/schemas/Venue/properties/city'
+        shortDescription:
+          $ref: '#/components/schemas/Venue/properties/shortDescription'
+        latitude:
+          $ref: '#/components/schemas/Venue/properties/latitude'
+        longitude:
+          $ref: '#/components/schemas/Venue/properties/longitude'
+        meanStarRating:
+          $ref: '#/components/schemas/MeanStarRating'
+        modeCostRating:
+          $ref: '#/components/schemas/ModeCostRating'
+        primaryPhoto:
+          $ref: '#/components/schemas/VenuePhoto/properties/photoFilename'
+        distance:
+          $ref: '#/components/schemas/Distance'
+          
+    VenueBrief:
+      title: VenueBrief
+      type: object
+      properties:
+        venueId:
+          type: integer
+        venueName:
+          $ref: '#/components/schemas/Venue/properties/venueName'
+        categoryName:
+          $ref: '#/components/schemas/VenueCategory/properties/categoryName'
+        city:
+          $ref: '#/components/schemas/Venue/properties/city'
+        shortDescription:
+          $ref: '#/components/schemas/Venue/properties/shortDescription'
+        primaryPhoto:
+          $ref: '#/components/schemas/VenuePhoto/properties/photoFilename'
+    
+    Review:
+      title: Review
+      type: object
+      properties:
+        reviewAuthor:
+          type: object
+          properties:
+            userId:
+              $ref: '#/components/schemas/FullUser/properties/userId'
+            username:
+              $ref: '#/components/schemas/User/properties/username'
+        reviewBody:
+          type: string
+          minLength: 1
+        starRating:
+          $ref: '#/components/schemas/StarRating'
+        costRating:
+          $ref: '#/components/schemas/CostRating'
+        timePosted:
+          $ref: '#/components/schemas/DateTime'
+          
+    ReviewWithVenue:
+      title: ReviewWithVenue
+      type: object
+      allOf: 
+        - $ref: '#/components/schemas/Review'
+      properties:
+        venue:
+          $ref: '#/components/schemas/VenueBrief'
+          
+    StarRating:
+      title: StarRating
+      type: integer
+      minimum: 1
+      maximum: 5
+    
+    MeanStarRating:
+      title: MeanStarRating
+      type: number
+      minimum: 1.0
+      maximum: 5.0
+    
+    CostRating:
+      title: CostRating
+      type: integer
+      minimum: 0
+      maximum: 4
+    
+    ModeCostRating:
+      title: ModeCostRating
+      type: integer
+      minimum: 0
+      maximum: 4
+          
+    VenueCategory:
+      title: VenueCategory
+      type: object
+      properties:
+        categoryId:
+          type: integer
+        categoryName:
+          type: string
+        categoryDescription:
+          type: string
+          
+    VenueSearchRequest:
+      title: VenueSearchRequest
+      type: object
+      properties:
+        startIndex:
+          type: integer
+          minimum: 0
+          default: 0
+        count:
+          type: integer
+          minimum: 0
+        city:
+          $ref: '#/components/schemas/Venue/properties/city'
+        q:
+          $ref: '#/components/schemas/Venue/properties/venueName'
+        categoryId:
+          $ref: '#/components/schemas/VenueCategory/properties/categoryId'
+        minStarRating:
+          $ref: '#/components/schemas/StarRating'
+        maxCostRating:
+          $ref: '#/components/schemas/ModeCostRating'
+        adminId:
+          $ref: '#/components/schemas/FullUser/properties/userId'
+        sortBy:
+          type: string
+          enum: [STAR_RATING, COST_RATING, DISTANCE]
+          default: STAR_RATING
+        reverseSort:
+          type: boolean
+          default: false
+        myLatitude:
+          $ref: '#/components/schemas/Latitude'
+        myLongitude:
+          $ref: '#/components/schemas/Longitude'
+          
+    RetrieveReviewsRequest:
+      title: RetrieveReviewsRequest
+      type: object
+      properties:
+        startIndex:
+          type: integer
+          minimum: 0
+          default: 0
+        count:
+          type: integer
+          minimum: 0
+    
+    DateTime:
+      title: DateTime
+      description: A UTC datetime expressed in ISO8601 format (yyyy-MM-ddThh:mm:ssZ)
+      type: string
+      example: '2012-04-23T18:25:43.511Z'
+      
+    Latitude:
+      title: Latitude
+      description: Represents the North/South angle of some location on the Earth.
+      type: number
+      minimum: -90
+      maximum: 90
+    
+    Longitude:
+      title: Longitude
+      description: Represents the West/East angle of some location on the Earth (measured from the prime meridian).
+      type: number
+      minimum: -180
+      maximum: 180
+      
+    Distance:
+      title: distance
+      description: A distance (in km) along the surface of the Earth.
+      type: number
+      minimum: 0
+      example: 1.452
+    
+    BinaryImageFile:
+      type: string
+      format: binary
+      description: The raw content of the JPEG or PNG image file.
+      example: Raw content of JPEG or PNG image file
+    
+    VenuePhoto:
+      type: object
+      properties:
+        photoFilename:
+          type: string
+          example: dA3s41Ob.png
+        photoDescription:
+          type: string
+          description: A short description of the photo's contents.
+          example: The view from the presidential suite on the top floor.
+        isPrimary:
+          type: boolean
+          description: Whether this is the primary photo for its venue.
+          default: false
+          
+    SqlResult:
+      type: object
+      properties:
+        fieldCount:
+          type: integer
+          example: 0
+        affectedRows:
+          type: integer
+          example: 1
+        insertId:
+          type: integer
+          example: 0
+        serverStatus:
+          type: integer
+          example: 2
+        warningCount:
+          type: integer
+          example: 0
+        message: 
+          type: string
+          example: '(Rows matched: 1  Changed: 0  Warnings: 0'
+        protocol41:
+          type: boolean
+        changedRows:
+          type: integer
+    
+    SqlResultSet:
+      type: array
+  
+  securitySchemes:
+    UserToken:
+      type: apiKey
+      name: X-Authorization
+      in: header

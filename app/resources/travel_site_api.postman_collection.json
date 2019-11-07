@@ -1,0 +1,1052 @@
+{
+	"info": {
+		"_postman_id": "1758af34-3b97-4703-b937-9726b0b5df6e",
+		"name": "travel_site_api",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "users",
+			"item": [
+				{
+					"name": "GET /users/:id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Authorization",
+								"value": "{{auth_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/users/3",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"users",
+								"3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PATCH /users/:id",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "X-Authorization",
+								"value": "{{auth_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"givenName\": \"Teddy\",\n\t\"familyName\": \"Teach\",\n\t\"password\": \"blackbeard\"\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/users/3",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"users",
+								"3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST /users",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"username\": \"testdudette\",\r\n  \"givenName\": \"Tammy\",\r\n  \"familyName\": \"Tester\",\r\n  \"email\": \"testdudette@gmail.com\",\r\n  \"password\": \"testing\"\r\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/users/",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"users",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST /users/login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "29c15472-337f-4ada-855c-3b4df948309b",
+								"exec": [
+									"pm.test(\"Set auth_token after login\", function() {",
+									"    const authToken = pm.response.json().token;",
+									"    if (typeof authToken !== \"undefined\") {",
+									"        pm.globals.set(\"auth_token\", authToken);",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"username\": \"superman\",\n\t\"password\": \"kryptonite\"\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/users/login",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"users",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST /users/logout",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "f82c2ef7-3c70-4467-99c8-ef49d4420b20",
+								"exec": [
+									"pm.test(\"Remove auth_token after logout\", function() {",
+									"    if (responseCode.code === 200) {",
+									"        pm.globals.set(\"auth_token\", null);",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-Authorization",
+								"value": "{{auth_token}}"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "{{BASE_URL}}/users/logout",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"users",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "users.photos",
+			"item": [
+				{
+					"name": "GET /users/:id/photo",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Authorization",
+								"value": "{{auth_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/users/3/photo",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"users",
+								"3",
+								"photo"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PUT/users/:id/photo (PNG)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "X-Authorization",
+								"value": "{{auth_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "image/png",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "file",
+							"file": {}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/users/3/photo",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"users",
+								"3",
+								"photo"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PUT/users/:id/photo (JPEG)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "68360429-2c86-4b28-bd76-29827f315e7b",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "X-Authorization",
+								"value": "{{auth_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "image/jpeg"
+							}
+						],
+						"body": {
+							"mode": "file",
+							"file": {}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/users/3/photo",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"users",
+								"3",
+								"photo"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE /users/:id/photo",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "X-Authorization",
+								"value": "{{auth_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/users/3/photo",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"users",
+								"3",
+								"photo"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "venues",
+			"item": [
+				{
+					"name": "GET /venues",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "29c15472-337f-4ada-855c-3b4df948309b",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Authorization",
+								"type": "text",
+								"value": "{{auth_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/venues?count=1&startIndex=0&categoryId=1&maxCostRating=4&adminId=1&q=wint&minStarRating=3&sortBy=DISTANCE&reverseSort=true&myLatitude=-45&myLongitude=170",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"venues"
+							],
+							"query": [
+								{
+									"key": "count",
+									"value": "1"
+								},
+								{
+									"key": "startIndex",
+									"value": "0"
+								},
+								{
+									"key": "categoryId",
+									"value": "1"
+								},
+								{
+									"key": "maxCostRating",
+									"value": "4"
+								},
+								{
+									"key": "adminId",
+									"value": "1"
+								},
+								{
+									"key": "q",
+									"value": "wint"
+								},
+								{
+									"key": "minStarRating",
+									"value": "3"
+								},
+								{
+									"key": "sortBy",
+									"value": "DISTANCE"
+								},
+								{
+									"key": "reverseSort",
+									"value": "true"
+								},
+								{
+									"key": "myLatitude",
+									"value": "-45"
+								},
+								{
+									"key": "myLongitude",
+									"value": "170"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET /venues (w/out filters)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "29c15472-337f-4ada-855c-3b4df948309b",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Authorization",
+								"type": "text",
+								"value": "{{auth_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/venues",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"venues"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET /categories",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "29c15472-337f-4ada-855c-3b4df948309b",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Authorization",
+								"type": "text",
+								"value": "{{auth_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/categories",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"categories"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST /venues",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "29c15472-337f-4ada-855c-3b4df948309b",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "X-Authorization",
+								"value": "{{auth_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\t\"venueName\": \"Santa's Winter Palace\",\r\n\t\"categoryId\": 1,\r\n\t\"city\": \"North Pole\",\r\n\t\"shortDescription\": \"The chillest place on earth.\",\r\n\t\"longDescription\": \"Especially good in the summer months.\",\r\n\t\"address\": \"1 North Pole\",\r\n\t\"latitude\": -45,\r\n\t\"longitude\": 0\r\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/venues",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"venues"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET /venues/:id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "29c15472-337f-4ada-855c-3b4df948309b",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "X-Authorization",
+								"value": "{{auth_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/venues/3",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"venues",
+								"3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PATCH /venues/:id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "29c15472-337f-4ada-855c-3b4df948309b",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "X-Authorization",
+								"value": "{{auth_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\t\"venueName\": \"Santa's Summer Palace\",\r\n\t\"latitude\": 0\r\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/venues/1",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"venues",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "venues.photos",
+			"item": [
+				{
+					"name": "POST /venues/:id/photos",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-Authorization",
+								"value": "{{auth_token}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "photo",
+									"type": "file",
+									"src": ""
+								},
+								{
+									"key": "description\n",
+									"value": "A scenic view.",
+									"type": "text"
+								},
+								{
+									"key": "makePrimary\n",
+									"value": "false",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/venues/1/photos",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"venues",
+								"1",
+								"photos"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET /venues/:id/photos/:photoId",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Authorization",
+								"value": "{{auth_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/venues/1/photos/Ylk2WTTl1rHCp3SxKbEGcSLSQuqwNvkO.jpeg",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"venues",
+								"1",
+								"photos",
+								"Ylk2WTTl1rHCp3SxKbEGcSLSQuqwNvkO.jpeg"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE /venues/:id/photos/:photoId",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "X-Authorization",
+								"value": "{{auth_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/venues/3/photos/B7kwga8DSax480JRhrF2MtFaXIGQSclm.jpeg",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"venues",
+								"3",
+								"photos",
+								"B7kwga8DSax480JRhrF2MtFaXIGQSclm.jpeg"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST /venues/:id/photos/:photoId/setPrimary",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-Authorization",
+								"value": "{{auth_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/venues/3/photos/axxtOq72fdzYBYRnwV9m9EbwEOTHqvqr.jpeg/setPrimary",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"venues",
+								"3",
+								"photos",
+								"axxtOq72fdzYBYRnwV9m9EbwEOTHqvqr.jpeg",
+								"setPrimary"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "reviews",
+			"item": [
+				{
+					"name": "GET /venues/:id/reviews",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "29c15472-337f-4ada-855c-3b4df948309b",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Authorization",
+								"type": "text",
+								"value": "{{auth_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/venues/1/reviews",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"venues",
+								"1",
+								"reviews"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST /venues/:id/reviews",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "29c15472-337f-4ada-855c-3b4df948309b",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Authorization",
+								"type": "text",
+								"value": "{{auth_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\t\"reviewBody\": \"A little bit too cold.\",\r\n\t\"starRating\": 2,\r\n\t\"costRating\": 1\r\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/venues/1/reviews",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"venues",
+								"1",
+								"reviews"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET /users/:id/reviews",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "29c15472-337f-4ada-855c-3b4df948309b",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Authorization",
+								"type": "text",
+								"value": "{{auth_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/users/3/reviews",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"users",
+								"3",
+								"reviews"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "backdoor",
+			"item": [
+				{
+					"name": "POST /reset",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/reset",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"reset"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST /resample",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/resample",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"resample"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST /executeSql",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "UPDATE User SET auth_token = 'test_token' WHERE email = 'bob.roberts@gmail.com'"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/executeSql",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"executeSql"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "e5746222-6b01-4d3a-865e-31140a180907",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "ee983d49-1c09-4ea9-bb69-c9b3e80ecc68",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "ccbe6ff8-ab91-412b-bf36-cff787ebb630",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "1630d2e8-0c3c-49ff-9a46-53432eade53f",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "059ea743-b6c7-4cb2-b257-7b3a8a061382",
+			"key": "BASE_URL",
+			"value": "localhost:4941/api/v1",
+			"type": "string"
+		}
+	]
+}

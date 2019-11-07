@@ -1,0 +1,17 @@
+{
+  "properties": ["username", "email", "givenName", "familyName", "password"],
+  "usersData": [
+    ["bobby1", "bob.roberts@gmail.com", "Bob", "Roberts", "password"],
+    ["black.panther", "black.panther@super.heroes", "T", "Challa", "Wakanda"],
+    ["superman", "superman@super.heroes", "Clark", "Kent", "kryptonite"],
+    ["batman", "dark.knight@super.heroes", "Bruce", "Wayne", "frankmiller"],
+    ["spiderman", "spiderman@super.heroes", "Peter", "Parker", "arachnid"],
+    ["ironman", "ironman@super.heroes", "Tony", "Stark", "robertdowney"],
+    ["captain.america", "captain.america@super.heroes", "Steve", "Rogers", "donaldtrump"],
+    ["dr.manhatten", "dr.manhatten@super.heroes", "Jonathan", "Osterman", "hydrogen"],
+    ["vampire.slayer", "vampire.slayer@super.heroes", "Buffy", "Summers", "sarahgellar"],
+    ["Ozymandias", "Ozymandias@super.villains", "Adrian", "Veidt", "shelley"],
+    ["Rorschach", "Rorschach@super.villains", "Walter", "Kovacs", "Joseph"],
+    ["power.woman", "power.woman@super.heroes", "Jessica", "Jones", "lukecage"]
+  ]
+}
